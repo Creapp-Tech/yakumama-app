@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============= AUTHENTICATION =============
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  password          String?   // Null for OAuth users
+  name              String?
+  image             String?
+  role              UserRole  @default(PATIENT)
+  isActive          Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  profile           UserProfile?
+  evaluations       Evaluation[]
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  auditLogs         AuditLog[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  PATIENT
+  RESEARCHER
+  ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
+// ============= USER PROFILE =============
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  
+  // Demographics
+  dateOfBirth     DateTime?
+  gender          Gender?
+  country         String?
+  city            String?
+  phoneNumber     String?     // Encrypted
+  
+  // Clinical Data
+  educationLevel  EducationLevel?
+  occupation      String?
+  medicalHistory  String?     @db.Text // Encrypted
+  currentMedications String?  @db.Text // Encrypted
+  familyHistory   String?     @db.Text // Encrypted
+  previousProducts String?    @db.Text
+  
+  // Lifestyle
+  sleepQuality    SleepQuality?
+  sleepHoursAvg   Float?
+  physicalActivity ActivityLevel?
+  
+  // Consent
+  consentGiven    Boolean  @default(false)
+  consentDate     DateTime?
+  consentVersion  String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("user_profiles")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+  OTHER
+}
+
+enum EducationLevel {
+  PRIMARY
+  SECONDARY
+  TECHNICAL
+  UNDERGRADUATE
+  POSTGRADUATE
+  DOCTORATE
+}
+
+enum SleepQuality {
+  VERY_POOR
+  POOR
+  FAIR
+  GOOD
+  EXCELLENT
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+  VERY_ACTIVE
+}
+
+// ============= EVALUATIONS =============
+
+model Evaluation {
+  id          String   @id @default(cuid())
+  userId      String
+  type        EvaluationType
+  status      EvaluationStatus @default(IN_PROGRESS)
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  duration    Int?     // Seconds
+  
+  // Specific Scores (0-100)
+  ecfScore    Float?   // Estado Cognitivo Funcional
+  efcScore    Float?   // Estado Físico para el Cerebro
+  nscScore    Float?   // Nutrición para la Salud Cerebral
+  ibcyScore   Float?   // Índice de Bienestar Cognitivo Yakumama
+  
+  // Levels
+  ecfLevel    String?
+  efcLevel    String?
+  nscLevel    String?
+  ibcyLevel   String?
+  
+  // Subfactors (Optional detailed tracking)
+  attentionScore    Float?
+  memoryScore       Float?
+  clarityScore      Float?
+  productivityScore Float?
+  stressSleepScore  Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses EvaluationResponse[]
+  plan      PersonalizedPlan?
+  
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("evaluations")
+}
+
+enum EvaluationType {
+  INITIAL
+  FOLLOW_UP_1WEEK
+  FOLLOW_UP_1MONTH
+  FOLLOW_UP_3MONTHS
+  FOLLOW_UP_6MONTHS
+}
+
+enum EvaluationStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  INVALIDATED
+}
+
+model EvaluationResponse {
+  id           String   @id @default(cuid())
+  evaluationId String
+  questionId   String
+  questionText String?
+  response     String   @db.Text // JSON string or text
+  score        Float?   // Normalized score 0-100
+  createdAt    DateTime @default(now())
+  
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  
+  @@index([evaluationId])
+  @@map("evaluation_responses")
+}
+
+model PersonalizedPlan {
+  id           String   @id @default(cuid())
+  evaluationId String   @unique
+  
+  // Plan Físico
+  physicalLevel       String?
+  physicalFrequency   Int?
+  physicalType        String?
+  
+  // Plan Cognitivo
+  cognitiveLevel      String?
+  cognitiveTasksPerDay Int?
+  cognitiveComponents String? @db.Text // JSON array
+  
+  // Plan Nutricional
+  nutritionalLevel    String?
+  snacksPerWeek       Int?
+  nutritionalFocus    String? @db.Text // JSON array
+  
+  // Mensajes Clave
+  keyMessages         String? @db.Text // JSON array
+  
+  createdAt DateTime @default(now())
+  
+  evaluation Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  
+  @@map("personalized_plans")
+}
+
+// ============= AUDIT LOGS =============
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model RateLimitLog {
+  id        String   @id @default(cuid())
+  identifier String  // IP or userId
+  endpoint  String
+  attempts  Int      @default(1)
+  lastAttempt DateTime @default(now())
+  expiresAt DateTime
+  
+  @@unique([identifier, endpoint])
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("rate_limit_logs")
+}
