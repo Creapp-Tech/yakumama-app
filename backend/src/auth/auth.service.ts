@@ -32,6 +32,16 @@ export class AuthService {
     }
 
     async signUp(data: any) {
-        return this.usersService.create(data);
+        // Check if user already exists
+        const existingUser = await this.usersService.findOne(data.email);
+        if (existingUser) {
+            throw new UnauthorizedException('Email already registered');
+        }
+
+        try {
+            return await this.usersService.create(data);
+        } catch (error) {
+            throw new UnauthorizedException('Registration failed');
+        }
     }
 }

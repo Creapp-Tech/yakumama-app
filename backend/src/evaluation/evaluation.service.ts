@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { getQuestionText } from './helpers/question-text.helper';
 
 @Injectable()
 export class EvaluationService {
     constructor(private prisma: PrismaService) { }
 
     async create(data: any) {
-        const { responses, type } = data;
-        const userId = 'user_id_placeholder'; // TODO: Get from Context/JWT
+        const { responses, type, userId } = data;
+
+        // Critical validation
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        if (!responses || typeof responses !== 'object') {
+            throw new Error('Invalid responses data');
+        }
+
+        // userId is now passed from controller
 
         // --- SCORING LOGIC ---
         // Helper Maps & Functions
@@ -94,7 +105,7 @@ export class EvaluationService {
                 responses: {
                     create: Object.entries(responses).map(([k, v]) => ({
                         questionId: k,
-                        questionText: 'Unknown', // TODO: Map to actual question text
+                        questionText: getQuestionText(k),
                         response: JSON.stringify(v)
                     }))
                 },
@@ -131,6 +142,16 @@ export class EvaluationService {
                 plan: true,
             }
         });
+    }
+
+    async hasInitialEvaluation(userId: string) {
+        const evaluation = await this.prisma.evaluation.findFirst({
+            where: {
+                userId,
+                type: 'INITIAL'
+            }
+        });
+        return { hasInitialEvaluation: !!evaluation, evaluation };
     }
 }
 

@@ -26,7 +26,9 @@ export const Sidebar = () => {
     return (
         <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col h-screen fixed left-0 top-0 z-40 shadow-sm">
             <div className="p-6 border-b border-gray-100">
-                <h1 className="text-2xl font-bold text-[#8dbf44] tracking-tight">YAKUMAMA</h1>
+                <Link href="/dashboard">
+                    <h1 className="text-2xl font-bold text-[#8dbf44] tracking-tight hover:opacity-80 transition-opacity">YAKUMAMA</h1>
+                </Link>
             </div>
 
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
