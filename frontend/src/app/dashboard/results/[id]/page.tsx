@@ -192,7 +192,7 @@ export default function ResultsPage() {
                                     items={[
                                         `Nivel: ${plan.cognitiveLevel}`,
                                         `Tareas diarias: ${plan.cognitiveTasksPerDay}`,
-                                        // JSON parse ideally
+                                        ...(plan.cognitiveComponents || []).map((c: string) => `• ${c}`)
                                     ]}
                                 />
                                 <PlanCard
@@ -201,6 +201,7 @@ export default function ResultsPage() {
                                     items={[
                                         `Nivel: ${plan.nutritionalLevel}`,
                                         `Snacks: ${plan.snacksPerWeek} / sem`,
+                                        ...(plan.nutritionalEnfocus || []).map((c: string) => `• ${c}`)
                                     ]}
                                 />
                             </div>
