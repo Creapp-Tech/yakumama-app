@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import api from '@/lib/api';
+import { getEvaluationById } from '@/lib/supabase-queries';
 import CognitiveRadar from '@/components/dashboard/CognitiveRadar';
 import ResultsCharts from '@/components/results/ResultsCharts';
 import Link from 'next/link';
@@ -18,16 +18,34 @@ export default function ResultsPage() {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!params.id) return;
             try {
-                const res = await api.get(`/evaluation/${params.id}`);
-                setData(res.data);
+                const evaluation = await getEvaluationById(params.id as string);
+                if (evaluation) {
+                    // Map snake_case to camelCase for the UI components
+                    const mappedData = {
+                        ...evaluation,
+                        ecfScore: Number(evaluation.ecf_score),
+                        efcScore: Number(evaluation.efc_score),
+                        nscScore: Number(evaluation.nsc_score),
+                        ibcyScore: Number(evaluation.ibcy_score),
+                        totalScore: Number(evaluation.total_score),
+                        // Levels and Plan are already JSONB and might be camelCase or snake_case depending on how they were saved
+                        // In EvaluationWizard I saved them as camelCase
+                        ecfLevel: evaluation.levels?.ecf,
+                        efcLevel: evaluation.levels?.efc,
+                        nscLevel: evaluation.levels?.nsc,
+                        ibcyLevel: evaluation.levels?.ibcy,
+                    };
+                    setData(mappedData);
+                }
             } catch (err) {
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        if (params.id) fetchData();
+        fetchData();
     }, [params.id]);
 
     const exportToPDF = async () => {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { updateUserProfile } from '@/lib/supabase-queries';
 import { useRouter } from 'next/navigation';
 
 export default function ProfileForm() {
@@ -16,6 +17,7 @@ export default function ProfileForm() {
         consentGiven: false,
         privacyAccepted: false,
     });
+    const { user, refreshProfile } = useAuth();
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -28,12 +30,28 @@ export default function ProfileForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         try {
             if (!formData.consentGiven || !formData.privacyAccepted) {
                 alert('Debes aceptar el consentimiento y la política de privacidad.');
                 return;
             }
-            await api.post('/users/profile', formData);
+
+            // Map frontend fields to DB snake_case fields
+            await updateUserProfile(user.id, {
+                date_of_birth: formData.dateOfBirth,
+                gender: formData.gender,
+                country: formData.country,
+                city: formData.city,
+                occupation: formData.occupation,
+                phone_number: formData.phoneNumber,
+                work_hours: Number(formData.workHours),
+                consent_given: formData.consentGiven,
+                privacy_accepted: formData.privacyAccepted
+            } as any);
+
+            await refreshProfile();
             router.push('/evaluation/initial');
         } catch (err: any) {
             console.error(err);

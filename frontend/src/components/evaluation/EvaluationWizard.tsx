@@ -2,15 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
 import { evaluationQuestions, Question } from '@/lib/questions';
 import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { createEvaluation } from '@/lib/supabase-queries';
+import { calculateEvaluation } from '@/lib/evaluation-logic';
 
 export default function EvaluationWizard() {
     const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
     const [answers, setAnswers] = useState<Record<string, any>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
+    const { user } = useAuth();
 
     const sections = Array.from(new Set(evaluationQuestions.map(q => q.section))).sort();
     const currentSection = sections[currentSectionIndex];
@@ -49,11 +52,33 @@ export default function EvaluationWizard() {
     };
 
     const submitEvaluation = async () => {
+        if (!user) {
+            alert('Debes iniciar sesión para guardar tus resultados.');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            const res = await api.post('/evaluation', { responses: answers, type: 'INITIAL' });
-            const evaluationId = res.data.id;
-            router.push(`/dashboard/results/${evaluationId}`);
+            // Calculate scores locally
+            const results = calculateEvaluation(answers);
+
+            // Save to Supabase
+            const evaluation = await createEvaluation({
+                user_id: user.id,
+                type: 'initial',
+                ecf_score: results.ecfScore,
+                efc_score: results.efcScore,
+                nsc_score: results.nscScore,
+                ibcy_score: results.ibcyScore,
+                total_score: results.ibcyScore, // Using IBCY as total
+                raw_responses: answers,
+                plan: results.plan,
+                levels: results.levels
+            });
+
+            if (!evaluation) throw new Error('Failed to create evaluation');
+
+            router.push(`/dashboard/results/${evaluation.id}`);
         } catch (err: any) {
             console.error(err);
             alert('Error al enviar la evaluación. Por favor intenta de nuevo.');

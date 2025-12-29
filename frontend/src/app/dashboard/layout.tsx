@@ -8,37 +8,54 @@ import { BottomNav } from '@/components/dashboard/BottomNav';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
+    const { user, profile, loading } = useAuth();
     const [showOnboarding, setShowOnboarding] = useState(false);
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const user = localStorage.getItem('user');
-            if (!user) {
-                router.push('/auth/login');
-                return;
-            }
+        const checkInitialEvaluation = async () => {
+            if (!user) return;
 
-            // Check if user has initial evaluation
             try {
-                const response = await api.get('/evaluation/user/has-initial');
-                if (!response.data.hasInitialEvaluation) {
+                // Check if user has initial evaluation
+                const { data, error } = await supabase
+                    .from('evaluations')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('type', 'initial')
+                    .limit(1);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
                     setShowOnboarding(true);
                 }
             } catch (error) {
                 console.error('Error checking initial evaluation:', error);
-            } finally {
-                setIsLoading(false);
             }
         };
-        checkAuth();
-    }, [router]);
 
-    if (isLoading) return null;
+        if (!loading && user) {
+            // Redirect admin users to admin dashboard
+            if (profile?.role === 'admin') {
+                router.push('/admin/dashboard');
+                return;
+            }
+            checkInitialEvaluation();
+        }
+    }, [user, profile, loading, router]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-[#f3f4f6]">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#8dbf44] border-r-transparent"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#f3f4f6]">

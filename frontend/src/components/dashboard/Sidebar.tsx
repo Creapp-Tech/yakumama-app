@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { House, ClipboardList, Dumbbell, Brain, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Sidebar = () => {
     const pathname = usePathname();
     const router = useRouter();
+    const { signOut } = useAuth();
 
     const navItems = [
         { label: 'Inicio', icon: House, href: '/dashboard' },
@@ -18,8 +20,8 @@ export const Sidebar = () => {
         { label: 'Configuración', icon: Settings, href: '/dashboard/settings' },
     ];
 
-    const handleLogout = () => {
-        localStorage.removeItem('user');
+    const handleLogout = async () => {
+        await signOut();
         router.push('/auth/login');
     };
 
@@ -39,8 +41,8 @@ export const Sidebar = () => {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                                    ? 'bg-[#f0f9f0] text-[#8dbf44] shadow-sm font-semibold'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                ? 'bg-[#f0f9f0] text-[#8dbf44] shadow-sm font-semibold'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
                         >
                             <item.icon size={20} className={isActive ? 'text-[#8dbf44]' : 'text-gray-400 group-hover:text-gray-600'} />
