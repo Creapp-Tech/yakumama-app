@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import { supabase, Profile } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { getUserProfile } from '@/lib/supabase-queries';
+import { Profile } from '@/lib/supabase';
 
 interface AuthContextType {
     user: User | null;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
+    const supabase = createClient();
 
     const refreshProfile = async () => {
         if (user) {
@@ -82,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [supabase]);
 
     const signOut = async () => {
         await supabase.auth.signOut();
