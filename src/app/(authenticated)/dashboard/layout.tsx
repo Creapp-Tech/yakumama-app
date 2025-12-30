@@ -3,7 +3,6 @@
 
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { DesktopHeader } from '@/components/dashboard/DesktopHeader';
-import { Footer } from '@/components/dashboard/Footer';
 import { BottomNav } from '@/components/dashboard/BottomNav';
 import OnboardingModal from '@/components/onboarding/OnboardingModal';
 import { useEffect, useState } from 'react';
@@ -74,9 +73,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <main className="flex-1 p-4 md:p-8">
                     {children}
                 </main>
-
-                {/* Desktop Footer */}
-                {/* Desktop Footer Removed per user request */}
 
                 {/* Mobile Bottom Nav */}
                 <div className="md:hidden">
