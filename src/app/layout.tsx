@@ -9,6 +9,10 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
     title: 'Yakumama Lifestyle',
     description: 'Evaluación y Bienestar Cognitivo',
+    icons: {
+        icon: '/icon_yakumama.png',
+        apple: '/icon_yakumama.png',
+    }
 };
 
 export default function RootLayout({
