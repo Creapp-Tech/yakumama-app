@@ -102,9 +102,9 @@ export default function ResultsPage() {
     if (!data) return <div className="p-8 text-center text-red-500">No se encontraron resultados.</div>;
 
     const radarData = [
-        { subject: 'Cognitivo (ECF)', A: data.ecfScore || 0, fullMark: 100 },
-        { subject: 'Físico (EFC)', A: data.efcScore || 0, fullMark: 100 },
-        { subject: 'Nutrición (NSC)', A: data.nscScore || 0, fullMark: 100 },
+        { subject: 'Cognitivo (ECF)', week0: data.ecfScore || 0, fullMark: 100 },
+        { subject: 'Físico (EFC)', week0: data.efcScore || 0, fullMark: 100 },
+        { subject: 'Nutrición (NSC)', week0: data.nscScore || 0, fullMark: 100 },
     ];
 
     const plan = data.plan;

@@ -31,12 +31,12 @@ export default function NutritionResultsPage() {
     }
 
     const radarData = [
-        { subject: 'Dieta', A: result.domainScores.dietPattern, fullMark: 100 },
-        { subject: 'Omega-3', A: result.domainScores.omega3, fullMark: 100 },
-        { subject: 'Vit. B', A: result.domainScores.bVitamins, fullMark: 100 },
-        { subject: 'Vit. D', A: result.domainScores.vitaminD, fullMark: 100 },
-        { subject: 'Antioxidantes', A: result.domainScores.antioxidants, fullMark: 100 },
-        { subject: 'Estilo de Vida', A: result.domainScores.demandFactors, fullMark: 100 },
+        { subject: 'Dieta', week0: result.domainScores.dietPattern, fullMark: 100 },
+        { subject: 'Omega-3', week0: result.domainScores.omega3, fullMark: 100 },
+        { subject: 'Vit. B', week0: result.domainScores.bVitamins, fullMark: 100 },
+        { subject: 'Vit. D', week0: result.domainScores.vitaminD, fullMark: 100 },
+        { subject: 'Antioxidantes', week0: result.domainScores.antioxidants, fullMark: 100 },
+        { subject: 'Estilo de Vida', week0: result.domainScores.demandFactors, fullMark: 100 },
     ];
 
     const getLevelColor = (level: string) => {

@@ -44,3 +44,17 @@ export interface UserProgress {
     created_at: string;
     updated_at: string;
 }
+
+export interface CognitiveResult {
+    id: string;
+    user_id: string;
+    week: 0 | 6 | 12;
+    attention_score: number;
+    memory_score: number;
+    speed_score: number;
+    executive_score: number;
+    emotional_score: number;
+    wellbeing_score: number;
+    raw_data: any;
+    created_at: string;
+}
