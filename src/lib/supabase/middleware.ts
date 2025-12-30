@@ -24,6 +24,9 @@ export const updateSession = async (request: NextRequest) => {
                     })
                 },
             },
+            cookieOptions: {
+                name: 'yakumama-auth',
+            },
         }
     )
 

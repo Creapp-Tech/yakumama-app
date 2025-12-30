@@ -24,12 +24,14 @@ const AuthContext = createContext<AuthContextType>({
     refreshProfile: async () => { },
 });
 
+// Create client once outside component to prevent re-instantiation
+const supabase = createClient();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
-    const supabase = createClient();
 
     const refreshProfile = async () => {
         if (user) {
@@ -84,13 +86,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         return () => subscription.unsubscribe();
-    }, [supabase]);
+    }, []); // Empty deps since supabase is now a stable reference
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
-        setProfile(null);
-        setSession(null);
+        try {
+            // Clear state immediately
+            setUser(null);
+            setProfile(null);
+            setSession(null);
+
+            // Sign out from Supabase
+            await supabase.auth.signOut();
+
+            // Force full page reload to login page
+            window.location.href = '/auth/login';
+        } catch (error) {
+            console.error('Error signing out:', error);
+            // Even if signOut fails, redirect to login
+            window.location.href = '/auth/login';
+        }
     };
 
     return (

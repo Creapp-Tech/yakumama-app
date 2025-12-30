@@ -1,9 +1,9 @@
-import { createBrowserClient } from '@supabase/ssr';
+// Re-export the configured client creator
+export { createClient as supabaseClient } from './supabase/client';
 
-export const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Create a singleton instance for backward compatibility
+import { createClient } from './supabase/client';
+export const supabase = createClient();
 
 // Types for our database
 export type UserRole = 'admin' | 'user';

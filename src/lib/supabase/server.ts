@@ -24,6 +24,9 @@ export const createClient = async () => {
                     }
                 },
             },
+            cookieOptions: {
+                name: 'yakumama-auth',
+            },
         }
     )
 }

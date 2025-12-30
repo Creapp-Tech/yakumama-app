@@ -25,17 +25,12 @@ export const Sidebar = () => {
         const toastId = toast.loading('Cerrando sesión...');
 
         try {
-            // Race between signOut and a 2-second timeout
-            await Promise.race([
-                signOut(),
-                new Promise(resolve => setTimeout(resolve, 2000))
-            ]);
+            // signOut handles redirection internally
+            await signOut();
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
             toast.dismiss(toastId);
-            // Always redirect
-            window.location.href = '/auth/login';
         }
     };
 
