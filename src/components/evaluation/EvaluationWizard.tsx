@@ -197,26 +197,38 @@ function renderInput(q: Question, value: any, onChange: (id: string, val: any) =
         case 'radio':
             return (
                 <div className="space-y-3">
-                    {q.options?.map((opt) => (
-                        <label key={opt} className={`flex items-center p-4 rounded-lg border cursor-pointer transition-all ${value === opt
-                            ? 'border-[#8dbf44] bg-[#f0f9f0] shadow-sm'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                            }`}>
-                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-3 ${value === opt ? 'border-[#8dbf44]' : 'border-gray-400'
+                    {q.options?.map((opt) => {
+                        const optValue = typeof opt === 'string' ? opt : opt.value;
+                        const optLabel = typeof opt === 'string' ? opt : opt.label;
+                        const optHelper = typeof opt === 'string' ? undefined : opt.helper;
+                        const isSelected = value === optValue;
+
+                        return (
+                            <label key={optValue} className={`flex flex-col p-4 rounded-lg border cursor-pointer transition-all ${isSelected
+                                ? 'border-[#8dbf44] bg-[#f0f9f0] shadow-sm'
+                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                 }`}>
-                                {value === opt && <div className="w-3 h-3 rounded-full bg-[#8dbf44]" />}
-                            </div>
-                            <input
-                                type="radio"
-                                name={q.id}
-                                value={opt}
-                                checked={value === opt}
-                                onChange={() => onChange(q.id, opt)}
-                                className="hidden"
-                            />
-                            <span className="text-gray-700 font-medium">{opt}</span>
-                        </label>
-                    ))}
+                                <div className="flex items-center">
+                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center mr-3 ${isSelected ? 'border-[#8dbf44]' : 'border-gray-400'
+                                        }`}>
+                                        {isSelected && <div className="w-3 h-3 rounded-full bg-[#8dbf44]" />}
+                                    </div>
+                                    <input
+                                        type="radio"
+                                        name={q.id}
+                                        value={optValue}
+                                        checked={isSelected}
+                                        onChange={() => onChange(q.id, optValue)}
+                                        className="hidden"
+                                    />
+                                    <span className="text-gray-700 font-medium">{optLabel}</span>
+                                </div>
+                                {optHelper && (
+                                    <p className="mt-1 ml-8 text-sm text-gray-500">{optHelper}</p>
+                                )}
+                            </label>
+                        );
+                    })}
                 </div>
             );
 
@@ -225,9 +237,12 @@ function renderInput(q: Question, value: any, onChange: (id: string, val: any) =
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {q.options?.map((opt) => {
-                        const isSelected = selected.includes(opt);
+                        const optValue = typeof opt === 'string' ? opt : opt.value;
+                        const optLabel = typeof opt === 'string' ? opt : opt.label;
+                        const isSelected = selected.includes(optValue);
+
                         return (
-                            <label key={opt} className={`flex items-center p-4 rounded-lg border cursor-pointer transition-all ${isSelected
+                            <label key={optValue} className={`flex items-center p-4 rounded-lg border cursor-pointer transition-all ${isSelected
                                 ? 'border-[#8dbf44] bg-[#f0f9f0] shadow-sm'
                                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                 }`}>
@@ -240,13 +255,13 @@ function renderInput(q: Question, value: any, onChange: (id: string, val: any) =
                                     checked={isSelected}
                                     onChange={() => {
                                         const newSelected = isSelected
-                                            ? selected.filter(s => s !== opt)
-                                            : [...selected, opt];
+                                            ? selected.filter(s => s !== optValue)
+                                            : [...selected, optValue];
                                         onChange(q.id, newSelected);
                                     }}
                                     className="hidden"
                                 />
-                                <span className="text-gray-700">{opt}</span>
+                                <span className="text-gray-700">{optLabel}</span>
                             </label>
                         );
                     })}
