@@ -3,9 +3,9 @@ export const AUTH_CONFIG = {
     routes: {
         public: [
             '/',
-            '/login',
-            '/register',
-            '/forgot-password',
+            '/auth/login',
+            '/auth/register',
+            '/auth/forgot-password',
             '/privacy',
             '/terms',
         ],
@@ -19,7 +19,7 @@ export const AUTH_CONFIG = {
             '/admin',
         ],
         auth: {
-            login: '/login',
+            login: '/auth/login',
             callback: '/auth/callback',
             home: '/dashboard',
         },

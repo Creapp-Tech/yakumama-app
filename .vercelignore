@@ -1,0 +1,9 @@
+backend/
+scripts/
+documents/
+*.md
+!README.md
+.git/
+.github/
+docker-compose.yml
+EOF

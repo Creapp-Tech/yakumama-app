@@ -9,7 +9,6 @@ export const updateSession = async (request: NextRequest) => {
         },
     })
 
-    // Create client
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,21 +27,21 @@ export const updateSession = async (request: NextRequest) => {
         }
     )
 
-    // Refresh session if needed
     const {
         data: { user },
     } = await supabase.auth.getUser()
 
     const path = request.nextUrl.pathname
-    const { protected: protectedRoutes, public: publicRoutes, auth } = AUTH_CONFIG.routes
+    const { protected: protectedRoutes, auth } = AUTH_CONFIG.routes
 
     // Check if route is protected
     const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
 
-    // Check if route is an auth page (login/register) - prevent access if already logged in
-    const isAuthPage = [auth.login, '/register', '/forgot-password'].includes(path)
+    // Check if route is an auth page (prevent access if already logged in)
+    const isAuthPage = path.startsWith('/auth/') &&
+        !path.startsWith('/auth/callback') &&
+        path !== '/auth/callback'
 
-    // If user is not signed in and tries to access a protected route
     if (!user && isProtectedRoute) {
         const url = request.nextUrl.clone()
         url.pathname = auth.login
@@ -50,7 +49,6 @@ export const updateSession = async (request: NextRequest) => {
         return NextResponse.redirect(url)
     }
 
-    // If user is signed in and tries to access login/register
     if (user && isAuthPage) {
         const url = request.nextUrl.clone()
         url.pathname = auth.home
