@@ -5,7 +5,7 @@ export interface Question {
     section: string;
     text: string;
     type: QuestionType;
-    options?: string[]; // For radio, checkbox
+    options?: (string | { value: string; label: string; helper?: string })[]; // For radio, checkbox
     likertLabels?: { min: string; max: string }; // Custom labels for scale
     required?: boolean;
     placeholder?: string;

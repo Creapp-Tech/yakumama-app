@@ -24,7 +24,7 @@ export const BottomNav = () => {
 
     const navItems = [
         { label: 'INICIO', icon: House, href: '/dashboard' },
-        { label: 'DIETA', icon: ClipboardList, href: '/dashboard/diet' },
+        { label: 'NUTRICIÓN', icon: ClipboardList, href: '/dashboard/nutrition' },
         { label: 'TERAPIAS', icon: Dumbbell, href: '/dashboard/therapies' },
         { label: 'WORKOUT', icon: Brain, href: '/dashboard/workout' },
         { label: 'SETTING', icon: Settings, href: '/dashboard/settings' },

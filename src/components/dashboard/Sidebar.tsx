@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { House, ClipboardList, Dumbbell, Brain, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 export const Sidebar = () => {
     const pathname = usePathname();
@@ -14,15 +15,28 @@ export const Sidebar = () => {
 
     const navItems = [
         { label: 'Inicio', icon: House, href: '/dashboard' },
-        { label: 'Dieta', icon: ClipboardList, href: '/dashboard/diet' },
+        { label: 'Nutrición', icon: ClipboardList, href: '/dashboard/nutrition' },
         { label: 'Terapias', icon: Dumbbell, href: '/dashboard/therapies' },
         { label: 'Workout', icon: Brain, href: '/dashboard/workout' },
         { label: 'Configuración', icon: Settings, href: '/dashboard/settings' },
     ];
 
     const handleLogout = async () => {
-        await signOut();
-        router.push('/auth/login');
+        const toastId = toast.loading('Cerrando sesión...');
+
+        try {
+            // Race between signOut and a 2-second timeout
+            await Promise.race([
+                signOut(),
+                new Promise(resolve => setTimeout(resolve, 2000))
+            ]);
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            toast.dismiss(toastId);
+            // Always redirect
+            window.location.href = '/auth/login';
+        }
     };
 
     return (

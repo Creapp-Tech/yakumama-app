@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </main>
 
                 {/* Desktop Footer */}
-                <Footer />
+                {/* Desktop Footer Removed per user request */}
 
                 {/* Mobile Bottom Nav */}
                 <div className="md:hidden">

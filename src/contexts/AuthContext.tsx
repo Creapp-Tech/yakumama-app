@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
-            setLoading(true);
+            // setLoading(true); // Don't trigger loading on every update to avoid flickering
             setSession(session);
             setUser(session?.user ?? null);
 
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setProfile(null);
             }
 
-            setLoading(false);
+            setLoading(false); // Ensure loading is false if it was true (e.g. initial load logic overlap)
         });
 
         return () => subscription.unsubscribe();

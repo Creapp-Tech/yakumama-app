@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { Footer } from '@/components/dashboard/Footer';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -184,6 +185,7 @@ export default function LoginPage() {
                     </Link>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

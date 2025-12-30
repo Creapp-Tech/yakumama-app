@@ -14,7 +14,7 @@ export default function AuthListener() {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN') {
-                router.refresh();
+                // router.refresh();
                 // Optional: Redirect to dashboard if on public page? 
                 // Logic handled by middleware mostly, but client-side redirect helps UX
             }

@@ -39,7 +39,7 @@ export default function DashboardPage() {
                         description={`Comidas y Snacks\nPlan Balanceado`}
                         buttonText="Recetas Diarias"
                         imageSrc="/assets/dashboard/nutrition.png"
-                        href="/dashboard/diet"
+                        href="/dashboard/recipes"
                         accentColor="bg-[#8b5cf6]"
                     />
 
