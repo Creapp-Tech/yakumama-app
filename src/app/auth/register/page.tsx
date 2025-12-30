@@ -7,7 +7,6 @@ import { createUserProfile } from '@/lib/supabase-queries';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { Footer } from '@/components/dashboard/Footer';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -195,7 +194,6 @@ export default function RegisterPage() {
                     </Link>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 }
