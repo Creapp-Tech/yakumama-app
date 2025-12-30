@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { AUTH_CONFIG } from '@/lib/supabase/config';
 
-export default function LoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div>
+        <>
             <div className="mb-6">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
                     Iniciar Sesión
@@ -132,6 +132,16 @@ export default function LoginPage() {
                     </Link>
                 </div>
             </div>
+        </>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <div>
+            <Suspense fallback={<div>Cargando...</div>}>
+                <LoginForm />
+            </Suspense>
         </div>
     );
 }
